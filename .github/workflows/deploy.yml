@@ -39,4 +39,4 @@ jobs:
 
       - name: Build And Push Docker Image
         run: |
-          docker buildx build --platform linux/amd64 -t chcodeny1234/gateway:latest -t chcodeny1234/gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/gateway:latest -t chcodeny1234/gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
