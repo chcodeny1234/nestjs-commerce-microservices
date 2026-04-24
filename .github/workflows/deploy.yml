@@ -24,9 +24,9 @@ jobs:
 
       - name: Build And Push Docker Image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t codefactoryofficial/fc-nestjs-gateway:latest -t codefactoryofficial/fc-nestjs-gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t codefactoryofficial/fc-nestjs-notification:latest -t codefactoryofficial/fc-nestjs-notification:${{ github.sha }} -f ./apps/notification/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t codefactoryofficial/fc-nestjs-order:latest -t codefactoryofficial/fc-nestjs-order:${{ github.sha }} -f ./apps/order/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t codefactoryofficial/fc-nestjs-payment:latest -t codefactoryofficial/fc-nestjs-payment:${{ github.sha }} -f ./apps/payment/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t codefactoryofficial/fc-nestjs-product:latest -t codefactoryofficial/fc-nestjs-product:${{ github.sha }} -f ./apps/product/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t codefactoryofficial/fc-nestjs-user:latest -t codefactoryofficial/fc-nestjs-user:${{ github.sha }} -f ./apps/user/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/gateway:latest -t chcodeny1234/gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/notification:latest -t chcodeny1234/notification:${{ github.sha }} -f ./apps/notification/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/order:latest -t chcodeny1234/order:${{ github.sha }} -f ./apps/order/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/payment:latest -t chcodeny1234/payment:${{ github.sha }} -f ./apps/payment/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/product:latest -t chcodeny1234/product:${{ github.sha }} -f ./apps/product/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/user:latest -t chcodeny1234/user:${{ github.sha }} -f ./apps/user/Dockerfile --target production --push .

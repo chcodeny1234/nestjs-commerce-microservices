@@ -1,66 +1,226 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS Commerce Microservices
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project is a small commerce platform implemented with NestJS microservices. It models a simple order flow from user registration to payment and delivery notification, and runs the full stack with Docker Compose for local development.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Overview
 
-## Description
+The application is split into six services:
 
-NestJS commerce microservices example with gateway, user, product, order, payment, and notification services.
+- `gateway`: HTTP entry point for clients
+- `user`: user registration, login, and token parsing
+- `product`: product catalog and sample product creation
+- `order`: order orchestration and order state management
+- `payment`: payment processing and payment status updates
+- `notification`: notification persistence and delivery-started messaging
 
-## Installation
+The gateway exposes REST endpoints. Service-to-service communication uses gRPC. Each service owns its own persistence layer:
 
-```bash
-$ pnpm install
+- `user`: PostgreSQL
+- `product`: PostgreSQL
+- `payment`: PostgreSQL
+- `order`: MongoDB
+- `notification`: MongoDB
+
+## Architecture
+
+The main flow looks like this:
+
+1. A client calls the `gateway` service.
+2. The gateway forwards registration and login requests to `user`.
+3. The gateway forwards product requests to `product`.
+4. For order creation, the gateway authenticates the bearer token once and passes user metadata downstream.
+5. The `order` service loads user and product data, validates the total amount, stores the order, and requests payment.
+6. The `payment` service stores payment data, marks payment status, and triggers a notification request.
+7. The `notification` service stores a notification document and signals the order service to move the order into a delivery-started state.
+
+## Project Structure
+
+```text
+apps/
+  gateway/
+  user/
+  product/
+  order/
+  payment/
+  notification/
+libs/
+  common/
+proto/
+  *.proto
+tutorial/
+  kubernetes/
+  helm/
+docker-compose.yml
+docker-compose.image-test.yml
 ```
 
-## Running the app
+Key directories:
+
+- `apps/`: application services
+- `libs/common/`: shared DTOs, constants, gRPC helpers, and interceptors
+- `proto/`: gRPC contract definitions
+- `tutorial/`: Kubernetes and Helm examples for the project
+
+## Tech Stack
+
+- NestJS
+- TypeScript
+- gRPC
+- PostgreSQL
+- MongoDB
+- TypeORM
+- Mongoose
+- Docker Compose
+- PNPM
+
+## Services and Ports
+
+### Public entry point
+
+- `gateway`: `http://localhost:3000`
+
+### Databases
+
+- `postgres_user`: `localhost:6001`
+- `postgres_product`: `localhost:6002`
+- `mongo_order`: `localhost:6003`
+- `postgres_payment`: `localhost:6005`
+- `mongo_notification`: `localhost:6006`
+
+## Environment Files
+
+Each service includes its own local `.env` file:
+
+- `apps/gateway/.env`
+- `apps/user/.env`
+- `apps/product/.env`
+- `apps/order/.env`
+- `apps/payment/.env`
+- `apps/notification/.env`
+
+These files are configured for local Docker Compose usage.
+
+## Running the Project
+
+Install dependencies locally:
 
 ```bash
-$ docker compose up --build
+pnpm install
 ```
 
-## Test
+Start the full stack:
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker compose up --build
 ```
 
-## Support
+Stop the stack:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+docker compose down
+```
 
-## Stay in touch
+## Local Quality Checks
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Lint:
+
+```bash
+pnpm lint
+```
+
+Unit tests:
+
+```bash
+pnpm test
+```
+
+E2E command:
+
+```bash
+pnpm run test:e2e
+```
+
+Note:
+
+`test:e2e` is wired to the current project structure, but there are no committed E2E spec files yet, so it exits successfully without running real E2E cases.
+
+## Example API Flow
+
+Create sample products:
+
+```bash
+curl -X POST http://127.0.0.1:3000/product/sample
+```
+
+Register a user:
+
+```bash
+curl -X POST http://127.0.0.1:3000/auth/register \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Basic <base64(email:password)>' \
+  -d '{
+    "name": "Test User",
+    "age": 28,
+    "profile": "QA flow test user"
+  }'
+```
+
+Login:
+
+```bash
+curl -X POST http://127.0.0.1:3000/auth/login \
+  -H 'Authorization: Basic <base64(email:password)>'
+```
+
+Create an order:
+
+```bash
+curl -X POST http://127.0.0.1:3000/order \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer <accessToken>' \
+  -d '{
+    "productIds": [
+      "<product-id-1>",
+      "<product-id-2>"
+    ],
+    "address": {
+      "name": "Test User",
+      "street": "123 George Street",
+      "city": "Sydney",
+      "postalCode": "2000",
+      "country": "Australia"
+    },
+    "payment": {
+      "paymentMethod": "CreditCard",
+      "paymentName": "Test User",
+      "cardNumber": "4111111111111111",
+      "expiryYear": "2030",
+      "expiryMonth": "12",
+      "birthOrRegistration": "900101",
+      "passwordTwoDigits": "12",
+      "amount": 2500
+    }
+  }'
+```
+
+## Verified Behavior
+
+The following workflow has been verified in the local Docker Compose environment:
+
+- sample product creation
+- user registration
+- user login
+- order creation
+- payment processing
+- notification persistence
+- order persistence with updated status
+
+## Notes
+
+- The codebase has been normalized to English for comments, messages, and sample data.
+- Complex flows keep only minimal comments where extra context is useful.
+- The repository was initialized as a fresh Git history for this project.
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is provided for learning and portfolio use.
