@@ -39,9 +39,4 @@ jobs:
 
       - name: Build And Push Docker Image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/gateway:latest -t chcodeny1234/gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/notification:latest -t chcodeny1234/notification:${{ github.sha }} -f ./apps/notification/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/order:latest -t chcodeny1234/order:${{ github.sha }} -f ./apps/order/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/payment:latest -t chcodeny1234/payment:${{ github.sha }} -f ./apps/payment/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/product:latest -t chcodeny1234/product:${{ github.sha }} -f ./apps/product/Dockerfile --target production --push .
-          docker buildx build --platform linux/amd64,linux/arm64 -t chcodeny1234/user:latest -t chcodeny1234/user:${{ github.sha }} -f ./apps/user/Dockerfile --target production --push .
+          docker buildx build --platform linux/amd64 -t chcodeny1234/gateway:latest -t chcodeny1234/gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
